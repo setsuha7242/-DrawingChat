@@ -137,7 +137,13 @@
   width: 30%;
 }
 
+.form{
+  display: inline;
+}
+
+
 #clear,#save,#end{
+  display: inline;
   margin-top: 16px;
   margin-left: 4px;
   margin-right:4px;
