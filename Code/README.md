@@ -7,3 +7,7 @@
 
 `java -cp "lib/*:bin" server.AppServer 8080 /Code WebContent
 `
+
+URL
+
+`http://localhost:8080/Code/project/oekakinoumi/index.html`
