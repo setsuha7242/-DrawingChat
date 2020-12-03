@@ -44,11 +44,10 @@ function update(){
         var sSize = parseInt(json.drawComponentList.size);
         var sColor = String(json.drawComponentList.color);
         var sLayer = parseInt(json.drawComponentList.layer);
-        var sPointArray;
+        var sPointArray = json.drawComponentList.pointList;
+
+        draw(isEraser, sSize, sColor, sLayer, sPointArray);
         */
-
-
-
       }
     }
   }
@@ -172,6 +171,7 @@ function drawEnd(e){
   if(pointArray.length != 0){
     if(toolType == "pen" || toolType == "eraser"){
       //Jsonデータの作成
+      /*
       let sendData = {
         isEraser : (toolType == "eraser"),
         size : size,
@@ -180,17 +180,20 @@ function drawEnd(e){
         pointList : pointArray
       }
       let sendDataJson = JSON.stringify(sendData);
+      */
       //POST
       var url = "senddraw"
+      var sendData = "?isEraser="+String((toolType == "eraser"))+"&size="+String(size)+"&color="+String(color)+"&layer="+String(layer)+"&pointArray="+String(pointArray);
+      console.log(sendData);
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", url);
-      xhr.setRequestHeader('content-type','application/json');
-      xhr.send(sendDataJson);
+      xhr.open("POST", url + sendData);
+      xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
+      //xhr.setRequestHeader('content-type','application/json');
+      xhr.send(sendData);
 
       isDraw = false;
-      draw(toolType == "eraser", size, color, layer, pointArray);
+      //draw(toolType == "eraser", size, color, layer, pointArray);
       pointArray = new Array();
-      clearCanvas(ownCanvas, ownCtx)
     }
     else if(toolType="hand"){
       drugX=0;
