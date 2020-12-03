@@ -7,27 +7,30 @@
   --color6:#FFEFDB; /*チャット内部*/
   --color7:#FBF5ED; /*チャット内部*/
 }
-
-.canvas{
-  border:solid 3px #AAAAAA;
-  position: fixed;
-  top:10px;
-  bottom:132px;
-  left: 10px;
-  right:180px;
-  overflow: hidden;
+body{
+  background-color: var(--color4);
 }
 
-.canvas1{
-  margin:auto;
+#canvases{
+  position:absolute;
+  top: 0px;
+  left: 0px;
+}
+.canvas-wrapper{
+  position: relative;
 }
 
-#canvas{
-  background-color: yellow;
-  width: 400px;
-  height: 300px;
+.canvas-wrapper canvas{
+  position: absolute;
+  top: 0;
+  left: 0;
 }
-
+#canvasmix{
+  background-color: white;
+}
+#canvas2{
+  visibility: visible;
+}
 /*---*/
 /*ツールの親*/
 .tools{
