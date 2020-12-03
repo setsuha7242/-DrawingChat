@@ -20,7 +20,7 @@ function update(){
   xhr.send();
   xhr.onreadystatechange=function(){
     if(xhr.readyState === 4 && xhr.status === 200){
-      console.log(xhr.responseText);
+      //console.log(xhr.responseText);
       var json = JSON.parse(xhr.responseText || "null");
       if(json!="null"){
         //Chat受信
@@ -51,7 +51,7 @@ function update(){
       }
     }
   }
-  setTimeout(update, 10);
+  //setTimeout(update, 10);
 }
 update();
 
@@ -183,7 +183,7 @@ function drawEnd(e){
       */
       //POST
       var url = "senddraw"
-      var sendData = "?isEraser="+String((toolType == "eraser"))+"&size="+String(size)+"&color="+String(color)+"&layer="+String(layer)+"&pointArray="+String(pointArray);
+      var sendData = "?toolType="+String((toolType == "eraser"))+"&size="+String(size)+"&color="+String(color).replace("#","")+"&layer="+String(layer)+"&pointList="+String(pointArray);
       console.log(sendData);
       var xhr = new XMLHttpRequest();
       xhr.open("POST", url + sendData);
