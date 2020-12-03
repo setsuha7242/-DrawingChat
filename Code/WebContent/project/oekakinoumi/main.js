@@ -35,9 +35,18 @@ function update(){
           }
           chat += text+"<br>";
         }
-        document.getElementById("statement").innerHTML=chat; document.getElementById("statement").scrollIntoView(false);
+        document.getElementById("statement").innerHTML=chat;
+        document.getElementById("statement").scrollIntoView(false);
 
         //Canvas受信
+        /*
+        var isEraser = Boolean(json.drawComponentList.isEraser);
+        var sSize = parseInt(json.drawComponentList.size);
+        var sColor = String(json.drawComponentList.color);
+        var sLayer = parseInt(json.drawComponentList.layer);
+        var sPointArray;
+        */
+
 
 
       }
@@ -125,7 +134,6 @@ ownCanvas.addEventListener('mouseout', drawEnd, false);
 
 function onMove(e){
   if (e.buttons === 1 || e.witch === 1) {
-    isDraw = true;
     if(toolType == "pen" || toolType == "eraser"){
       let x = e.offsetX;
       let y = e.offsetY;
@@ -142,14 +150,13 @@ function onMove(e){
   }
 }
 function onClick(e){
-  console.log(toolType);
+  isDraw = true;
   if(e.button === 0){
     if(toolType == "pen" || toolType == "eraser"){
       let x = e.offsetX;
       let y = e.offsetY;
       pointArray.push([x,y]);
       drawView(toolType);
-      console.log(pointArray);
     }
     else if(toolType == "spoit"){
       colorDropper(e.offsetX, e.offsetY);
@@ -173,20 +180,17 @@ function drawEnd(e){
         pointList : pointArray
       }
       let sendDataJson = JSON.stringify(sendData);
-      //console.log(sendDataJson);
-
       //POST
-      /*
       var url = "senddraw"
       var xhr = new XMLHttpRequest();
       xhr.open("POST", url);
-      xhr.setRequestHeader( 'Content-Type', 'application/json');
+      xhr.setRequestHeader('content-type','application/json');
       xhr.send(sendDataJson);
-      */
+
       isDraw = false;
       draw(toolType == "eraser", size, color, layer, pointArray);
       pointArray = new Array();
-        //clearCanvas(ownCanvas, ownCtx)
+      clearCanvas(ownCanvas, ownCtx)
     }
     else if(toolType="hand"){
       drugX=0;
@@ -340,12 +344,18 @@ function clearCanvas(canvas, ctx){
   ctx.clearRect(0, 0, canvas.height, canvas.width);
 }
 //画像のダウンロード
-document.getElementById("save").onclick=function(){
-  concatCanvas();
+document.getElementById("save").onclick= async function(){
+  await concatCanvas();
   //console.log(mixedCanvas.toDataURL());
   var img = mixedCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-  window.location.href = img;
-  console.log(img);
+  const a = document.cleateElement('a');
+  a.href = img;
+  a.download = "oekakinoumi-" + new Date().getTime() +".png";
+  a.style.display ="none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  //window.location.href = img;
   clearCanvas(mixedCanvas, mixedCtx);
 }
 //Canvas合成
@@ -359,8 +369,9 @@ async function concatCanvas(){
 function getImagefromCanvas(id){
   return new Promise((resolve, reject) => {
     const image = new Image();
-    const ctx = ctxArray[id];
-    image.onload = () => resolve(image);
+    image.onload = () =>{
+      resolve(image);
+    }
     image.onerror = (e) => reject(e);
     image.src = canvasArray[id].toDataURL();
   });
@@ -368,8 +379,6 @@ function getImagefromCanvas(id){
 
 //serverから受け取ったデータを描画する
 function draw(isEraser, ssize, scolor, slayer, spointArray){
-  console.log(spointArray);
-  console.log(slayer);
   var canvas = canvasArray[slayer -1];
   var ctx = ctxArray[slayer -1];
   ctx.lineCap = 'round';
