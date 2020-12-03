@@ -20,7 +20,7 @@ function update(){
   xhr.send();
   xhr.onreadystatechange=function(){
     if(xhr.readyState === 4 && xhr.status === 200){
-      //console.log(xhr.responseText);
+      console.log(xhr.responseText);
       var json = JSON.parse(xhr.responseText || "null");
       if(json!="null"){
         //Chat受信
@@ -39,19 +39,26 @@ function update(){
         document.getElementById("statement").scrollIntoView(false);
 
         //Canvas受信
-        /*
-        var isEraser = Boolean(json.drawComponentList.isEraser);
-        var sSize = parseInt(json.drawComponentList.size);
-        var sColor = String(json.drawComponentList.color);
-        var sLayer = parseInt(json.drawComponentList.layer);
-        var sPointArray = json.drawComponentList.pointList;
+        for(var drawComponent of json.drawComponentList){
+          var toolType = String(drawComponent.toolType);
+          if(toolType == "clear"){
+            for(var i =0; i < canvasArray.length; i++){
+              clearCanvas(canvasArray[i], ctxArray[i]);
+            }
+          }
+          else {
+            var sSize = parseInt(drawComponent.size);
+            var sColor = "#" + String(drawComponent.color);
+            var sLayer = parseInt(drawComponent.layer);
+            var sPointArray = drawComponent.pointList;
 
-        draw(isEraser, sSize, sColor, sLayer, sPointArray);
-        */
+            draw(toolType, sSize, sColor, sLayer, sPointArray);
+          }
+        }
       }
     }
   }
-  //setTimeout(update, 10);
+  setTimeout(update, 10);
 }
 update();
 
@@ -183,7 +190,7 @@ function drawEnd(e){
       */
       //POST
       var url = "senddraw"
-      var sendData = "?toolType="+String((toolType == "eraser"))+"&size="+String(size)+"&color="+String(color).replace("#","")+"&layer="+String(layer)+"&pointList="+String(pointArray);
+      var sendData = "?toolType="+String(toolType)+"&size="+String(size)+"&color="+String(color).replace("#","")+"&layer="+String(layer)+"&pointList="+String(pointArray);
       console.log(sendData);
       var xhr = new XMLHttpRequest();
       xhr.open("POST", url + sendData);
@@ -348,10 +355,12 @@ function clearCanvas(canvas, ctx){
 }
 //画像のダウンロード
 document.getElementById("save").onclick= async function(){
+  mixedCtx.fillStyle = "#ffffff";
+  mixedCtx.fillRect(0, 0, mixedCanvas.width, mixedCanvas.height);
   await concatCanvas();
   //console.log(mixedCanvas.toDataURL());
   var img = mixedCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-  const a = document.cleateElement('a');
+  const a = document.createElement('a');
   a.href = img;
   a.download = "oekakinoumi-" + new Date().getTime() +".png";
   a.style.display ="none";
@@ -381,12 +390,12 @@ function getImagefromCanvas(id){
 }
 
 //serverから受け取ったデータを描画する
-function draw(isEraser, ssize, scolor, slayer, spointArray){
+function draw(toolType, ssize, scolor, slayer, spointArray){
   var canvas = canvasArray[slayer -1];
   var ctx = ctxArray[slayer -1];
   ctx.lineCap = 'round';
   ctx.lineWidth = ssize;
-  if(!isEraser){
+  if(toolType == "pen"){
     ctx.globalAlpha = 1.0;
     ctx.strokeStyle = scolor;
     ctx.globalCompositeOperation = "source-over";
@@ -398,16 +407,16 @@ function draw(isEraser, ssize, scolor, slayer, spointArray){
   }
   if(spointArray.length == 1){
     ctx.beginPath();
-    ctx.moveTo(spointArray[0][0], spointArray[0][1]);
-    ctx.lineTo(spointArray[0][0], spointArray[0][1]);
+    ctx.moveTo(parseInt(spointArray[0][0]), parseInt(spointArray[0][1]));
+    ctx.lineTo(parseInt(spointArray[0][0]), parseInt(spointArray[0][1]));
     ctx.stroke();
     ctx.closePath();
   }
   else {
     for(i=0; i< spointArray.length -1; i++){
       ctx.beginPath();
-      ctx.moveTo(pointArray[i][0], pointArray[i][1]);
-      ctx.lineTo(pointArray[i+1][0], pointArray[i+1][1]);
+      ctx.moveTo(parseInt(spointArray[i][0]), parseInt(spointArray[i][1]));
+      ctx.lineTo(parseInt(spointArray[i+1][0]), parseInt(spointArray[i+1][1]));
       ctx.stroke();
       ctx.closePath();
     }
