@@ -65,7 +65,7 @@ body{
   text-align:center;
   margin:5px;
   width: 20%;
-  overflow: scroll;
+  overflow-x: scroll;
 }
 
 /*ツール子要素1*/
@@ -187,7 +187,7 @@ body{
   bottom: 60px;
   left:5px;
   font-size:3mm;
-  overflow: scroll;
+  overflow-y: scroll;
   word-break : break-all
   /* border:ridge 3px #4C3E38; */
 }

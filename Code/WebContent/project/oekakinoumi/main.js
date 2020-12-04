@@ -1,4 +1,6 @@
-//テキスト送信
+/*
+* sendボタンが押された際に、チャットボックスに入力した文字列をサーバーに送る
+*/
 document.getElementById("send").onclick=function(){
   var url = "sendchat"
   var xhr = new XMLHttpRequest();
@@ -12,6 +14,10 @@ document.getElementById("send").onclick=function(){
   }
 };
 
+/*
+* サーバーからチャットのログとキャンバスに描かれた線のログを取得し、
+* 自分の画面に反映させる
+*/
 function update(){
   var url = "update"
   var xhr = new XMLHttpRequest();
@@ -63,7 +69,10 @@ function update(){
 update();
 
 
-//起動時
+/*
+* main.htmlが読み込まれた際、index.htmlでユーザー名を入力して
+* main.htmlに遷移していなかった場合、index.htmlに遷移させる
+*/
 window.onload = function(){
   console.log("debug");
   var url = "checksession"
@@ -81,7 +90,9 @@ window.onload = function(){
   }
 }
 
-//サイトから離れる時
+/*
+* main.htmlから離れた際にユーザーの退出をサーバーに知らせる
+*/
 window.onunload = function(e){
   var url = "end"
   var xhr = new XMLHttpRequest();
@@ -90,23 +101,24 @@ window.onunload = function(e){
   xhr.send();
 }
 
-//以下描画処理
-//描画する線を通る点
+
+//描画する線を通る点の配列
 var pointArray = new Array();
-//canvasの取得
+//layer1とlayer2のcanvasの配列
 var canvasArray = new Array();
-//各canvasのcontext
+//layer1とlayer2を合成して一つのcanvasにする為のcanvas
 var mixedCanvas = document.getElementById('canvasmix');
 var mixedCtx = mixedCanvas.getContext("2d");
+//自分の描いた線を一時的に表示させる為のcanvas
 var ownCanvas = document.getElementById('canvasown');
 var ownCtx = ownCanvas.getContext("2d");
+//layer1とlayer2のcanvasのcontextをもつ配列
 var ctxArray = new Array();
 canvasArray.push(document.getElementById('canvas1'));
 canvasArray.push(document.getElementById('canvas2'));
 canvasArray.forEach(element => ctxArray.push(element.getContext("2d")));
 //レイヤー番号(1 or 2)
 var layer = 1;
-//初期値（サイズ、色、アルファ値）の決定
 //ペンサイズ(5種類)の定義
 const SIZE_1 =2;
 const SIZE_2 =4;
@@ -121,30 +133,29 @@ var size = SIZE_1;
 var color = "#555555";
 //ペンの透明度
 var alpha = 1.0;
-//描いているかどうか
+//自分が描いているかどうか
 var isDraw = false;
 //handでの前のマウスカーソルを格納する
 var drugX =0;
 var drugY=0;
 
-// event.offsetX, event.offsetY はキャンバスの縁からのオフセットの (x,y) です。
 
-// mousedown, mousemove, mouseup にイベントリスナーを追加
+//マウスが動いている際にonMove関数を実行する
 ownCanvas.addEventListener('mousemove', onMove, false);
-
-ownCanvas.addEventListener('mousedown', onClick, false);
-
-ownCanvas.addEventListener('mouseup', drawEnd, false);
-
-ownCanvas.addEventListener('mouseout', drawEnd, false);
-
+/*
+* 左クリックがされていて、マウスが動いている場合、
+* tooltyeがペンか消しゴムならpointArrayにcanvasの縁からのマウスの座標を
+* 追加して、drawView関数を実行する。
+* tooltypeが手である場合、画面の縁からのマウスの座標をとってdrugCanvas関数を
+* 実行する
+*/
 function onMove(e){
   if (e.buttons === 1 || e.witch === 1) {
     if(toolType == "pen" || toolType == "eraser"){
       let x = e.offsetX;
       let y = e.offsetY;
       pointArray.push([x,y]);
-      drawView(toolType);
+      drawView();
     }
     else if(toolType == "hand"){
       let x = e.screenX;
@@ -155,6 +166,16 @@ function onMove(e){
     }
   }
 }
+
+//マウスがクリックされた際にonClick関数を実行する
+ownCanvas.addEventListener('mousedown', onClick, false);
+/*
+* マウスの左ボタンが押されてない場合、
+* tooltyeがペンか消しゴムならpointArrayにcanvasの縁からのマウスの座標を
+* 追加して、drawView関数を実行する。
+* tooltypeが手である場合、画面の縁からのマウスの座標をとって、drugXとdrugYに
+* 値を入れる
+*/
 function onClick(e){
   isDraw = true;
   if(e.button === 0){
@@ -162,7 +183,7 @@ function onClick(e){
       let x = e.offsetX;
       let y = e.offsetY;
       pointArray.push([x,y]);
-      drawView(toolType);
+      drawView();
     }
     else if(toolType == "spoit"){
       colorDropper(e.offsetX, e.offsetY);
@@ -174,20 +195,18 @@ function onClick(e){
   }
 }
 
+//マウスのボタンから指が離れた際にdrawEnd関数を実行する
+ownCanvas.addEventListener('mouseup', drawEnd, false);
+
+//マウスがcanvasから離れた際にdrawEnd関数を実行する
+ownCanvas.addEventListener('mouseout', drawEnd, false);
+
+/*
+* サーバーに、描画する線に必要なデータを送る。
+*/
 function drawEnd(e){
   if(pointArray.length != 0){
     if(toolType == "pen" || toolType == "eraser"){
-      //Jsonデータの作成
-      /*
-      let sendData = {
-        isEraser : (toolType == "eraser"),
-        size : size,
-        color : color,
-        layer : layer,
-        pointList : pointArray
-      }
-      let sendDataJson = JSON.stringify(sendData);
-      */
       //POST
       var url = "senddraw"
       var sendData = "?toolType="+String(toolType)+"&size="+String(size)+"&color="+String(color).replace("#","")+"&layer="+String(layer)+"&pointList="+String(pointArray);
@@ -195,11 +214,9 @@ function drawEnd(e){
       var xhr = new XMLHttpRequest();
       xhr.open("POST", url + sendData);
       xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
-      //xhr.setRequestHeader('content-type','application/json');
       xhr.send(sendData);
 
       isDraw = false;
-      //draw(toolType == "eraser", size, color, layer, pointArray);
       pointArray = new Array();
     }
     else if(toolType="hand"){
