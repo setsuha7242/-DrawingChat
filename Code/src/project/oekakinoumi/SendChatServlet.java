@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/28更新　仮完成
+
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
@@ -36,10 +36,10 @@ public class SendChatServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		request.setCharacterEncoding("UTF-8");
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
+		//ユーザーを保持しているなら
 		if (user != null) {
 			String message = request.getParameter("message");
 			ServletContext context = this.getServletContext();
