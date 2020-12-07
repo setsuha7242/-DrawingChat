@@ -3,7 +3,9 @@ package project.oekakinoumi;
 import java.util.ArrayList;
 import java.util.List;
 
-//キャンパス描画の要素を表すクラス
+/*
+* キャンパス描画の要素を表すクラス
+*/
 public class DrawComponent {
   //ツールの種類
   private String toolType;

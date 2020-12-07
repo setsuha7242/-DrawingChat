@@ -17,7 +17,7 @@ public class ResetCanvasServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-    ServletContext context = this.getServletContext();
+		ServletContext context = this.getServletContext();
 		Chat chat = (Chat) context.getAttribute("chat");
 		Canvas canvas = (Canvas) context.getAttribute("canvas");
 		UserManager userManager = (UserManager) context.getAttribute("usermanager");
@@ -36,7 +36,6 @@ public class ResetCanvasServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		request.setCharacterEncoding("UTF-8");
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");

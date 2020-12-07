@@ -1,5 +1,7 @@
 package project.oekakinoumi;
-//ユーザーを表すクラス
+/*
+* ユーザーを表すクラス
+*/
 public class User {
 	//ユーザの名前
 	private String name;

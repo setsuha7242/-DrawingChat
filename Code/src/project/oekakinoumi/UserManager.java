@@ -2,7 +2,9 @@ package project.oekakinoumi;
 
 import java.util.ArrayList;
 import java.util.List;
-//ユーザーを管理するクラス
+/*
+* ユーザーを管理するクラス
+*/
 public class UserManager {
   //ユーザーのリスト
   private List<User> userList = new ArrayList<User>();

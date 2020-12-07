@@ -1,5 +1,7 @@
 package project.oekakinoumi;
-//チャットの要素を表すクラス
+/*
+* チャットの要素を表すクラス
+*/
 public class Statement {
 	//メッセージの送信者
 	private User user;

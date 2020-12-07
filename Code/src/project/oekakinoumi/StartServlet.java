@@ -60,7 +60,7 @@ public class StartServlet extends HttpServlet {
 			chat.addStatement(statement);
 
 		}else{
-    	response.getWriter().print("{\"result\":\"false\",\"message\":\""+name+"\"}");
+			response.getWriter().print("{\"result\":\"false\",\"message\":\""+name+"\"}");
 		}
 		response.getWriter().flush();
 

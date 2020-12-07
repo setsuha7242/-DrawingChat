@@ -34,9 +34,7 @@ public class CheckSessionServlet extends HttpServlet {
 			context.setAttribute("usermanager", userManager);
 		}
 	}
-	/*
-	*
-	*/
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ServletContext context = this.getServletContext();
 		HttpSession session = request.getSession();

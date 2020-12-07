@@ -2,7 +2,9 @@ package project.oekakinoumi;
 
 import java.util.ArrayList;
 import java.util.List;
-//キャンパスを表すクラス
+/*
+* キャンパスを表すクラス
+*/
 public class Canvas {
   //Clearが実行されたindexを保持する
   private int clearPoint = 0;
