@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 
+import com.google.gson.Gson;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -38,6 +40,7 @@ public class UpdateServlet extends HttpServlet {
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Gson gson = new Gson();
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
 		if (user != null) {
@@ -53,38 +56,17 @@ public class UpdateServlet extends HttpServlet {
 
 			builder.append("{");
 			builder.append("\"user\":");
-			toJson(user, builder);
+			builder.append(gson.toJson(user));
 			builder.append(",");
 
-			builder.append("\"statementList\":[");
-			Iterator<Statement> statementIterator = chat.getStatementList().iterator();
-			if (statementIterator.hasNext()) {
-				Statement statement = statementIterator.next();
-				toJson(statement, builder);
-			}
-			while (statementIterator.hasNext()) {
-				builder.append(",");
-				Statement statement = statementIterator.next();
-				toJson(statement, builder);
-			}
-			builder.append("]");
+			builder.append("\"statementList\":");
+			builder.append(gson.toJson(chat.getStatementList()));
 			builder.append(",");
 
-			builder.append("\"drawComponentList\":[");
+			builder.append("\"drawComponentList\":");
 			int nextHeader = canvas.getListSize();
-			Iterator<DrawComponent> drawComponentIterator = canvas.getDrawComponentList(canvasHeader,nextHeader).iterator();
+			builder.append(gson.toJson(canvas.getDrawComponentList(canvasHeader,nextHeader)));
 			session.setAttribute("canvasHeader", new Integer(nextHeader));
-			if (drawComponentIterator.hasNext()) {
-				DrawComponent drawComponent = drawComponentIterator.next();
-				toJson(drawComponent, builder);
-			}
-			while (drawComponentIterator.hasNext()) {
-				builder.append(",");
-				DrawComponent drawComponent = drawComponentIterator.next();
-				toJson(drawComponent, builder);
-			}
-			builder.append("]");
-
 			builder.append("}");
 
 
@@ -97,26 +79,5 @@ public class UpdateServlet extends HttpServlet {
 		}
 	}
 
-	private static void toJson(User user, StringBuilder builder) {
-		builder.append("{");
-		builder.append("\"name\":\"").append(user.getName()).append("\"");
-		builder.append("}");
-	}
-
-	private static void toJson(Statement statement, StringBuilder builder) {
-		builder.append("{");
-		builder.append("\"user\":");
-		toJson(statement.getUser(), builder);
-		builder.append(",");
-		builder.append("\"message\":\"").append(statement.getMessage()).append("\"");
-		builder.append("}");
-	}
-
-	private static void toJson(DrawComponent drawComponent, StringBuilder builder){
-		builder.append("{");
-		builder.append("\"drawData\":");
-		builder.append(drawComponent.getDrawData());
-		builder.append("}");
-	}
 
 }

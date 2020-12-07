@@ -8,24 +8,39 @@
   --color7:#FBF5ED; /*チャット内部*/
 }
 
-.canvas{
-  border:solid 3px #AAAAAA;
-  position: fixed;
-  top:10px;
-  bottom:132px;
-  left: 10px;
-  right:180px;
-  overflow: hidden;
+body{
+  background-color: var(--color4);
 }
 
-.canvas1{
-  margin:auto;
+#canvases{
+  position:absolute;
+  top: 0px;
+  left: 0px;
+}
+.canvas-wrapper{
+  position: relative;
 }
 
-#canvas{
-  background-color: yellow;
-  width: 400px;
-  height: 300px;
+.canvas-wrapper canvas{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+#canvasmix{
+  background-color: white;
+}
+#canvas2{
+  visibility: visible;
+}
+
+.canvas-wrapper2{
+  position: absolute;
+  display: flex;
+  top:516px;
+}
+
+.container::-webkit-scrollbar {
+    display:none;
 }
 
 /*---*/
@@ -35,11 +50,12 @@
   border:solid 3px var(--color1);
   background-color: var(--color2);
   position: fixed;
-  height:80px;
+  height:96px;
   bottom:10px;
   left: 10px;
   right:180px;
   display: flex;
+  user-select:none;
 }
 
 .toolsname{
@@ -51,9 +67,11 @@
   font-weight: bold;
   position: absolute;
   width: 80px;
-  top: -30px;
-  left: -3px;
+  height: 64px;
+  bottom: 74px;
+  left: 10px;
   border-radius: 10px 10px 0px 0px;
+  user-select:none;
 }
 
 /* 子要素全て */
@@ -62,12 +80,13 @@
   text-align:center;
   margin:5px;
   width: 20%;
-  overflow: scroll;
+  overflow-x: scroll;
 }
 
 /*ツール子要素1*/
-/* .tools1{
-} */
+.tools1{
+  width: 25%;
+}
 
 /*ツールボタン*/
 .toolbutton,.sizebutton,.layerbutton{
@@ -76,6 +95,7 @@
 
 /*ツールボタン画像*/
 .toolbuttonimg,.sizebuttonimg{
+  -webkit-user-drag: none;
   padding: 4px;
 }
 
@@ -134,7 +154,7 @@
 
 /*ツール子要素5*/
 .button{
-  width: 30%;
+  width: 25%;
 }
 
 .form{
@@ -171,9 +191,11 @@
   font-weight: bold;
   position: absolute;
   width: 80px;
-  top: -30px;
-  left: -3px;
+  height: 64px;
+  top:12px;
+  right: 90px;
   border-radius: 10px 10px 0px 0px;
+  user-select:none;
 }
 
 .chatbox{
@@ -184,7 +206,7 @@
   bottom: 60px;
   left:5px;
   font-size:3mm;
-  overflow: scroll;
+  overflow-y: scroll;
   word-break : break-all
   /* border:ridge 3px #4C3E38; */
 }

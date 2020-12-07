@@ -6,13 +6,16 @@
   <link rel="stylesheet" type="text/css" href="main.css"/>
 </head>
 <body>
-  <div class="canvas">
-    <div class="canvas1">
-      <canvas id="canvas"></canvas>
+  <div id="canvases">
+    <div class= "canvas-wrapper">
+      <canvas id="canvasmix" width = 500 height = 500></canvas>
+      <canvas id="canvas1" width = 500 height = 500></canvas>
+      <canvas id="canvas2" width = 500 height = 500></canvas>
+      <canvas id="canvasown" width = 500 height = 500></canvas>
     </div>
   </div>
+  <div class="toolsname">Tools</div>
   <div class="tools">
-    <div class="toolsname">Tools</div>
     <div class="tools1">
       ツール<br>
       <input id ="pen" class="toolbutton" type="radio" name="tool" value="pen" checked="checked">
@@ -21,6 +24,8 @@
       <label for="spoit"><img src="./material/image/spoit.png" class="toolbuttonimg"></label>
       <input id="eraser" class="toolbutton" type="radio" name="tool" value="eraser">
       <label for="eraser"><img src="./material/image/eraser.png" class="toolbuttonimg"></label>
+      <input id="hand" class="toolbutton" type="radio" name="tool" value="hand">
+      <label for="hand"><img src="./material/image/hand.png" class="toolbuttonimg"></label>
       <!-- <input id="clear" class="toolbutton" type="radio" name="tool" value="clear">
       <label for="clear"><img src="./material/clear.png" class="toolbuttonimg"></label> -->
     </div>
@@ -58,8 +63,8 @@
       </form>
     </div>
   </div>
+  <div class="chatname">Chat</div>
   <div class="chat">
-    <div class="chatname">Chat</div>
     <div class="chatbox">
       <span id="statement">
         User1が入室しました<br>

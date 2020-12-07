@@ -2,13 +2,15 @@
   text-align: center;
 }
 
+.title img{
+  width: 70%;
+}
+
 .inputParent{
-  text-align: center;
+  background-color: white;
   border: 1px solid #aaa;
   position: absolute;
   margin: auto;
-  top: 0;
-  bottom: 0;
   left: 0;
   right: 0;
   width: 300px;
