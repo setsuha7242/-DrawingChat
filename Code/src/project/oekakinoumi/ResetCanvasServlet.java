@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/28更新　仮完成
+
 import java.io.IOException;
 
 import javax.servlet.ServletContext;

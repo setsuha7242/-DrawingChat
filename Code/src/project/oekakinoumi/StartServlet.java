@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/27更新　仮完成
+
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
@@ -41,10 +41,10 @@ public class StartServlet extends HttpServlet {
 		String name = request.getParameter("name");
 		ServletContext context = this.getServletContext();
 		UserManager userManager = (UserManager) context.getAttribute("usermanager");
-		//System.out.println(name+"さんが入室を試みました");
 		User user = userManager.getUserByName(name);
 		Chat chat = (Chat) context.getAttribute("chat");
 		response.setContentType("application/json");
+		//ユーザーを保持しているなら
 		if (user == null) {
 			user = new User();
 			user.setName(name);

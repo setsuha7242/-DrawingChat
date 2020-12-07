@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/27更新　仮完成
+
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
@@ -34,15 +34,20 @@ public class CheckSessionServlet extends HttpServlet {
 			context.setAttribute("usermanager", userManager);
 		}
 	}
-
+	/*
+	*
+	*/
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ServletContext context = this.getServletContext();
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		if (user == null) {
-			response.getWriter().print("{\"result\":\"false\",\"message\":\"index.html\"}");
-		}else{
+		//クライアントがユーザーを保持しているならtrueを返す
+		if (user != null) {
 			response.getWriter().print("{\"result\":\"true\",\"message\":\"success\"}");
+		}
+		//保持していないならfalseと遷移するurlを送る
+		else{
+			response.getWriter().print("{\"result\":\"false\",\"message\":\"index.html\"}");
 		}
 
 		response.getWriter().flush();

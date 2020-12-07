@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/27更新　仮完成
+
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
@@ -40,7 +40,7 @@ public class EndServlet extends HttpServlet {
 		UserManager userManager = (UserManager) context.getAttribute("usermanager");
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-
+		//ユーザーを保持しているなら
 		if (user != null) {
 			session.invalidate();
 			userManager.removeUser(user);

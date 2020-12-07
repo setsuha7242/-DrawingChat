@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/28更新　仮完成
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import javax.servlet.ServletContext;
@@ -41,6 +41,7 @@ public class SendDrawServlet extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
+		//ユーザーを保持しているなら
 		if (user != null) {
 
 			ServletContext context = this.getServletContext();

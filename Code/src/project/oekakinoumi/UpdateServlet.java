@@ -1,5 +1,5 @@
 package project.oekakinoumi;
-//11/28更新　仮完成
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -43,6 +43,7 @@ public class UpdateServlet extends HttpServlet {
 		Gson gson = new Gson();
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
+		//ユーザーを保持しているなら
 		if (user != null) {
 			Integer ch = (Integer) session.getAttribute("canvasHeader");
 			int canvasHeader = 0;
