@@ -1,5 +1,77 @@
-//テキスト送信
-document.getElementById("send").onclick=function(){
+//描画する線を通る点の配列
+var pointArray = new Array();
+//layer1とlayer2のcanvasの配列
+var canvasArray = new Array();
+//layer1とlayer2を合成して一つのcanvasにする為のcanvas
+var mixedCanvas = document.getElementById('canvasmix');
+var mixedCtx = mixedCanvas.getContext("2d");
+//自分の描いた線を一時的に表示させる為のcanvas
+var ownCanvas = document.getElementById('canvasown');
+var ownCtx = ownCanvas.getContext("2d");
+//layer1とlayer2のcanvasのcontextをもつ配列
+var ctxArray = new Array();
+//レイヤー番号(1 or 2)
+var layer = 1;
+//ペンサイズ(5種類)の定義
+const SIZE_1 =2;
+const SIZE_2 =4;
+const SIZE_3 =6;
+const SIZE_4 =8;
+const SIZE_5 =10;
+//ツールのタイプ
+var toolType = "pen";
+//ペンのサイズ
+var size = SIZE_1;
+//ペンのカラー
+var color = "#555555";
+//ペンの透明度
+var alpha = 1.0;
+//自分が描いているかどうか
+var isDraw = false;
+//handでの前のマウスカーソルを格納する
+var drugX =0;
+var drugY=0;
+//カラーピッカーのイベントをもつ
+var colorWell;
+
+window.addEventListener("load", function(){
+  checkSession();
+  canvasArray.push(document.getElementById('canvas1'));
+  canvasArray.push(document.getElementById('canvas2'));
+  canvasArray.forEach(element => ctxArray.push(element.getContext("2d")));
+  colorWell = document.querySelector("#color");
+  colorWell.value = color;
+  colorWell.addEventListener("input", changeColor, false);
+  colorWell.select();
+  document.getElementById("send").addEventListener("click",sendChatRequest ,false);
+  ownCanvas.addEventListener('mousedown', onClick, false);
+  ownCanvas.addEventListener('mousemove', onMove, false);
+  ownCanvas.addEventListener('mouseup', drawEnd, false);
+  ownCanvas.addEventListener('mouseout', drawEnd, false);
+  document.querySelectorAll(".size").forEach(target => target.addEventListener('click', changeSize, false));
+  document.querySelectorAll(".toolbutton").forEach(target => target.addEventListener('click', changeTool, false));
+  document.querySelectorAll(".layerbutton").forEach(target => target.addEventListener('click', changeLayer, false));
+  document.getElementById("clear").addEventListener("click", clearAllCanvas,false);
+  document.getElementById("save").addEventListener("click",saveImg,false);
+  window.addEventListener("unload", end, false);
+  sendUpdateRequest();
+}, false);
+
+/*
+* main.htmlから離れた際にユーザーの退出をサーバーに知らせる
+*/
+function end(){
+  var url = "end"
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url);
+  xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
+  xhr.send();
+}
+
+/*
+* sendボタンが押された際に、チャットボックスに入力した文字列をサーバーに送る
+*/
+function sendChatRequest(){
   var url = "sendchat"
   var xhr = new XMLHttpRequest();
   xhr.open("POST", url);
@@ -10,61 +82,71 @@ document.getElementById("send").onclick=function(){
     xhr.send("message="+text);
     document.getElementById("textbox").value="";
   }
-};
+}
 
-function update(){
+/*
+* サーバーにデータを送るようにリクエストする
+*/
+function sendUpdateRequest(){
   var url = "update"
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url);
   xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
   xhr.send();
-  xhr.onreadystatechange=function(){
+  xhr.onreadystatechange = function(){
     if(xhr.readyState === 4 && xhr.status === 200){
       console.log(xhr.responseText);
-      var json = JSON.parse(xhr.responseText || "null");
-      if(json!="null"){
-        //Chat受信
-        var chat = "";
-        for(var statement of json.statementList){
-          var text ="";
-          var name = statement.user.name;
-          if(name == ""){
-            text = statement.message;
-          }else{
-            text = statement.user.name+":"+statement.message;
-          }
-          chat += text+"<br>";
-        }
-        document.getElementById("statement").innerHTML=chat;
-        document.getElementById("statement").scrollIntoView(false);
+      reciveUpdateRequest(xhr);
+    }
+  }
+  setTimeout(sendUpdateRequest, 10);
+}
 
-        //Canvas受信
-        for(var drawComponent of json.drawComponentList){
-          var toolType = String(drawComponent.toolType);
-          if(toolType == "clear"){
-            for(var i =0; i < canvasArray.length; i++){
-              clearCanvas(canvasArray[i], ctxArray[i]);
-            }
-          }
-          else {
-            var sSize = parseInt(drawComponent.size);
-            var sColor = "#" + String(drawComponent.color);
-            var sLayer = parseInt(drawComponent.layer);
-            var sPointArray = drawComponent.pointList;
+/*
+* サーバーから受け取ったデータを自分の画面に反映させる
+*/
+function reciveUpdateRequest(xhr){
+  var json = JSON.parse(xhr.responseText || "null");
+  if(json!="null"){
+    //Chat受信
+    var chat = "";
+    for(var statement of json.statementList){
+      var text ="";
+      var name = statement.user.name;
+      if(name == ""){
+        text = statement.message;
+      }else{
+        text = statement.user.name+":"+statement.message;
+      }
+      chat += text+"<br>";
+    }
+    document.getElementById("statement").innerHTML=chat;
+    document.getElementById("statement").scrollIntoView(false);
 
-            draw(toolType, sSize, sColor, sLayer, sPointArray);
-          }
+    //Canvas受信
+    for(var drawComponent of json.drawComponentList){
+      var toolType = String(drawComponent.toolType);
+      if(toolType == "clear"){
+        for(var i =0; i < canvasArray.length; i++){
+          clearCanvas(canvasArray[i], ctxArray[i]);
         }
+      }
+      else {
+        var sSize = parseInt(drawComponent.size);
+        var sColor = "#" + String(drawComponent.color);
+        var sLayer = parseInt(drawComponent.layer);
+        var sPointArray = drawComponent.pointList;
+
+        draw(toolType, sSize, sColor, sLayer, sPointArray);
       }
     }
   }
-  setTimeout(update, 10);
 }
-update();
-
-
-//起動時
-window.onload = function(){
+/*
+* main.htmlが読み込まれた際、index.htmlでユーザー名を入力して
+* main.htmlに遷移していなかった場合、index.htmlに遷移させる
+*/
+function checkSession(){
   console.log("debug");
   var url = "checksession"
   var xhr = new XMLHttpRequest();
@@ -81,80 +163,13 @@ window.onload = function(){
   }
 }
 
-//サイトから離れる時
-window.onunload = function(e){
-  var url = "end"
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
-  xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
-  xhr.send();
-}
-
-//以下描画処理
-//描画する線を通る点
-var pointArray = new Array();
-//canvasの取得
-var canvasArray = new Array();
-//各canvasのcontext
-var mixedCanvas = document.getElementById('canvasmix');
-var mixedCtx = mixedCanvas.getContext("2d");
-var ownCanvas = document.getElementById('canvasown');
-var ownCtx = ownCanvas.getContext("2d");
-var ctxArray = new Array();
-canvasArray.push(document.getElementById('canvas1'));
-canvasArray.push(document.getElementById('canvas2'));
-canvasArray.forEach(element => ctxArray.push(element.getContext("2d")));
-//レイヤー番号(1 or 2)
-var layer = 1;
-//初期値（サイズ、色、アルファ値）の決定
-//ペンサイズ(5種類)の定義
-const SIZE_1 =2;
-const SIZE_2 =4;
-const SIZE_3 =6;
-const SIZE_4 =8;
-const SIZE_5 =10;
-//ツールのタイプ
-var toolType = "pen";
-//ペンのサイズ
-var size = SIZE_1;
-//ペンのカラー
-var color = "#555555";
-//ペンの透明度
-var alpha = 1.0;
-//描いているかどうか
-var isDraw = false;
-//handでの前のマウスカーソルを格納する
-var drugX =0;
-var drugY=0;
-
-// event.offsetX, event.offsetY はキャンバスの縁からのオフセットの (x,y) です。
-
-// mousedown, mousemove, mouseup にイベントリスナーを追加
-ownCanvas.addEventListener('mousemove', onMove, false);
-
-ownCanvas.addEventListener('mousedown', onClick, false);
-
-ownCanvas.addEventListener('mouseup', drawEnd, false);
-
-ownCanvas.addEventListener('mouseout', drawEnd, false);
-
-function onMove(e){
-  if (e.buttons === 1 || e.witch === 1) {
-    if(toolType == "pen" || toolType == "eraser"){
-      let x = e.offsetX;
-      let y = e.offsetY;
-      pointArray.push([x,y]);
-      drawView(toolType);
-    }
-    else if(toolType == "hand"){
-      let x = e.screenX;
-      let y = e.screenY;
-      drugCanvas(drugX, drugY, x, y);
-      drugX = x;
-      drugY = y;
-    }
-  }
-}
+/*
+* マウスの左ボタンが押されてない場合、
+* tooltyeがペンか消しゴムならpointArrayにcanvasの縁からのマウスの座標を
+* 追加して、drawOwnCanvas関数を実行する。
+* tooltypeが手である場合、画面の縁からのマウスの座標をとって、drugXとdrugYに
+* 値を入れる
+*/
 function onClick(e){
   isDraw = true;
   if(e.button === 0){
@@ -162,7 +177,7 @@ function onClick(e){
       let x = e.offsetX;
       let y = e.offsetY;
       pointArray.push([x,y]);
-      drawView(toolType);
+      drawOwnCanvas();
     }
     else if(toolType == "spoit"){
       colorDropper(e.offsetX, e.offsetY);
@@ -174,32 +189,40 @@ function onClick(e){
   }
 }
 
+/*
+* 左クリックがされていて、マウスが動いている場合、
+* tooltyeがペンか消しゴムならpointArrayにcanvasの縁からのマウスの座標を
+* 追加して、drawOwnCanvas関数を実行する。
+* tooltypeが手である場合、画面の縁からのマウスの座標をとってdrugCanvas関数を
+* 実行する
+*/
+function onMove(e){
+  if (e.buttons === 1 || e.witch === 1) {
+    if(toolType == "pen" || toolType == "eraser"){
+      let x = e.offsetX;
+      let y = e.offsetY;
+      pointArray.push([x,y]);
+      drawOwnCanvas();
+    }
+    else if(toolType == "hand"){
+      let x = e.screenX;
+      let y = e.screenY;
+      drugCanvas(drugX, drugY, x, y);
+      drugX = x;
+      drugY = y;
+    }
+  }
+}
+
+/*
+* サーバーに、描画する線に必要なデータを送り、pointArrayの初期化を行う
+*/
 function drawEnd(e){
   if(pointArray.length != 0){
     if(toolType == "pen" || toolType == "eraser"){
-      //Jsonデータの作成
-      /*
-      let sendData = {
-        isEraser : (toolType == "eraser"),
-        size : size,
-        color : color,
-        layer : layer,
-        pointList : pointArray
-      }
-      let sendDataJson = JSON.stringify(sendData);
-      */
       //POST
-      var url = "senddraw"
-      var sendData = "?toolType="+String(toolType)+"&size="+String(size)+"&color="+String(color).replace("#","")+"&layer="+String(layer)+"&pointList="+String(pointArray);
-      console.log(sendData);
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", url + sendData);
-      xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
-      //xhr.setRequestHeader('content-type','application/json');
-      xhr.send(sendData);
-
+      sendDrawRequest();
       isDraw = false;
-      //draw(toolType == "eraser", size, color, layer, pointArray);
       pointArray = new Array();
     }
     else if(toolType="hand"){
@@ -208,10 +231,24 @@ function drawEnd(e){
     }
   }
 }
+/*
+* サーバーに線のデータを送る関数
+*/
+function sendDrawRequest(){
+  var url = "senddraw"
+  var sendData = "?toolType="+String(toolType)+"&size="+String(size)+"&color="+String(color).replace("#","")+"&layer="+String(layer)+"&pointList="+String(pointArray);
+  console.log(sendData);
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url + sendData);
+  xhr.setRequestHeader('content-type','application/x-www-form-urlencoded;charset=UTF-8');
+  xhr.send(sendData);
+}
 
 
-
-function drawView(){
+/*
+* 自分の描いている線を一時的にownCanvasに描画する
+*/
+function drawOwnCanvas(){
   ownCtx.beginPath();
   ownCtx.lineCap = 'round';
   ownCtx.lineWidth = size;
@@ -234,9 +271,15 @@ function drawView(){
   ownCtx.stroke();
   ownCtx.closePath();
 }
-//ここまで、描画処理
 
-//hand処理
+/*
+* hand処理
+* キャンバスの位置を変更する
+* x1: 前のマウスの位置のx座標
+* y1: 前のマウスの位置のy座標
+* x2: 今のマウスの位置のx座標
+* y2: 今のマウスの位置のy座標
+*/
 function drugCanvas(x1, y1 , x2, y2){
   var currentX = document.getElementById("canvases").style.left;
   var numX = Number(String(currentX).replace("px", ""));
@@ -246,38 +289,34 @@ function drugCanvas(x1, y1 , x2, y2){
   document.getElementById("canvases").style.top = String(y2 -y1 + numY) + "px";
 }
 
-//colorPicker
-var colorWell;
-window.addEventListener("load", startup, false);
-function startup() {
-  colorWell = document.querySelector("#color");
-  colorWell.value = color;
-  colorWell.addEventListener("input", updateFirst, false);
-  colorWell.select();
-}
-function updateFirst(event) {
+/*
+* colorPickerによって色の変更があった際にcolorに変更された色を設定する
+*/
+function changeColor(event) {
   color = event.target.value;
 }
 
-//ペンサイズ変更
-document.getElementById("size1").onclick=function(){
-  size = SIZE_1;
-}
-
-document.getElementById("size2").onclick=function(){
-  size = SIZE_2;
-}
-
-document.getElementById("size3").onclick=function(){
-  size = SIZE_3;
-}
-
-document.getElementById("size4").onclick=function(){
-  size = SIZE_4;
-}
-
-document.getElementById("size5").onclick=function(){
-  size = SIZE_5;
+/*
+* ペンのサイズを変更する
+*/
+function changeSize(e){
+  console.log(e.target.value);
+  switch(parseInt(e.target.value)){
+    case 1:
+      size = SIZE_1;
+      break;
+    case 2:
+      size = SIZE_2;
+      break;
+    case 3:
+      size = SIZE_3;
+      break;
+    case 4:
+      size = SIZE_4;
+      break;
+    default:
+    size = SIZE_5;
+  }
 }
 
 /*スポイト機能
@@ -290,8 +329,8 @@ function colorDropper(x, y){
   var g;
   var b;
   var a;
-  for(var i=0; i< layer; i++){
-    var imagedata = ctxArray[layer -1 - i].getImageData(x, y, 1, 1);
+  for(var i=0; i< ctxArray.length; i++){
+    var imagedata = ctxArray[ctxArray.length -1 - i].getImageData(x, y, 1, 1);
     // RGBAの取得。
     r = imagedata.data[0];
     g = imagedata.data[1];
@@ -301,44 +340,37 @@ function colorDropper(x, y){
       break;
     }
   }
-  color =  rgb2hex([r,g,b]);
+  color =  rgbTohex([r,g,b]);
   colorWell.value = color; //colorPickerに色を設定
 }
 //rgb to hex
-function rgb2hex ( rgb ) {
+function rgbTohex ( rgb ) {
 	return "#" + rgb.map( function ( value ) {
 		return ( "0" + value.toString( 16 ) ).slice( -2 ) ;
 	} ).join( "" ) ;
 }
 
-document.getElementById("pen").onclick=function(){
-  //ctxArray[1].globalCompositeOperation = "source-over";
-  toolType= "pen";
+/*
+* 使用ツールを変更する
+*/
+function changeTool(e){
+  console.log(e.target.value);
+  toolType = String(e.target.value);
 }
 
-document.getElementById("eraser").onclick=function(){
-  //ctxArray[1].globalCompositeOperation = "destination-out";
-  toolType = "eraser";
+/*
+*描き込むレイヤーを変更する
+* e: event
+*/
+function changeLayer(e){
+  console.log(e.target.value);
+  layer = parseInt(e.target.value);
 }
 
-document.getElementById("spoit").onclick=function(){
-  toolType = "spoit";
-}
-
-document.getElementById("hand").onclick=function(){
-  toolType = "hand";
-}
-
-document.getElementById("layer1").onclick=function(){
-  layer = 1;
-  document.getElementById("layer2").style.visibility = "hidden";
-}
-document.getElementById("layer2").onclick=function(){
-  layer = 2;
-  document.getElementById("layer2").style.visibility = "visible";
-}
-
-document.getElementById("clear").onclick=function(){
+/*
+* キャンバスに描画された線を全て消す
+*/
+function clearAllCanvas(){
   for(var i =0; i < canvasArray.length; i++){
     clearCanvas(canvasArray[i], ctxArray[i]);
   }
@@ -349,16 +381,18 @@ document.getElementById("clear").onclick=function(){
   xhr.send();
 }
 
-//canvasの初期化
+//canvas上の線を削除
 function clearCanvas(canvas, ctx){
-  ctx.clearRect(0, 0, canvas.height, canvas.width);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
-//画像のダウンロード
-document.getElementById("save").onclick= async function(){
+
+/*
+* キャンバスを画像としてエクスポートする
+*/
+async function saveImg(){
   mixedCtx.fillStyle = "#ffffff";
   mixedCtx.fillRect(0, 0, mixedCanvas.width, mixedCanvas.height);
   await concatCanvas();
-  //console.log(mixedCanvas.toDataURL());
   var img = mixedCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
   const a = document.createElement('a');
   a.href = img;
@@ -367,7 +401,6 @@ document.getElementById("save").onclick= async function(){
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  //window.location.href = img;
   clearCanvas(mixedCanvas, mixedCtx);
 }
 //Canvas合成
@@ -389,7 +422,9 @@ function getImagefromCanvas(id){
   });
 }
 
-//serverから受け取ったデータを描画する
+/*
+* キャンバスから受け取った線のデータを反映させる
+*/
 function draw(toolType, ssize, scolor, slayer, spointArray){
   var canvas = canvasArray[slayer -1];
   var ctx = ctxArray[slayer -1];
