@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>お絵かきの海</title>
+  <link rel="stylesheet" type="text/css" href="main.css"/>
+</head>
+<body>
+  <div id="canvases">
+    <div class= "canvas-wrapper">
+      <canvas id="canvasmix" width = 500 height = 500></canvas>
+      <canvas id="canvas1" width = 500 height = 500></canvas>
+      <canvas id="canvas2" width = 500 height = 500></canvas>
+      <canvas id="canvasown" width = 500 height = 500></canvas>
+    </div>
+  </div>
+  <div class="toolsname">Tools</div>
+  <div class="tools">
+    <div class="tools1">
+      ツール<br>
+      <input id ="pen" class="toolbutton" type="radio" name="tool" value="pen" checked="checked">
+      <label for="pen"><img src="./material/image/pen.png" class="toolbuttonimg"></label>
+      <input id ="spoit" class="toolbutton" type="radio" name="tool" value="spoit">
+      <label for="spoit"><img src="./material/image/spoit.png" class="toolbuttonimg"></label>
+      <input id="eraser" class="toolbutton" type="radio" name="tool" value="eraser">
+      <label for="eraser"><img src="./material/image/eraser.png" class="toolbuttonimg"></label>
+      <input id="hand" class="toolbutton" type="radio" name="tool" value="hand">
+      <label for="hand"><img src="./material/image/hand.png" class="toolbuttonimg"></label>
+      <!-- <input id="clear" class="toolbutton" type="radio" name="tool" value="clear">
+      <label for="clear"><img src="./material/clear.png" class="toolbuttonimg"></label> -->
+    </div>
+    <div class="size">
+      サイズ<br>
+      <input id="size1" class="sizebutton" type="radio" name="size" value="1" checked="checked">
+      <label for="size1"><img src="./material/image/size1.png" class="sizebuttonimg"></label>
+      <input id="size2" class="sizebutton" type="radio" name="size" value="2">
+      <label for="size2"><img src="./material/image/size2.png" class="sizebuttonimg"></label>
+      <input id="size3" class="sizebutton" type="radio" name="size" value="3">
+      <label for="size3"><img src="./material/image/size3.png" class="sizebuttonimg"></label>
+      <input id="size4" class="sizebutton" type="radio" name="size" value="4">
+      <label for="size4"><img src="./material/image/size4.png" class="sizebuttonimg"></label>
+      <input id="size5" class="sizebutton" type="radio" name="size" value="5">
+      <label for="size5"><img src="./material/image/size5.png" class="sizebuttonimg"></label>
+    </div>
+    <div class="color">
+      カラー<br>
+      <input id="color" type="color"  name="color" value="#e66465">
+      <label for="color"></label>
+    </div>
+    <div class="layer">
+      <input id="layer1" class="layerbutton" type="radio" name="layer" value="1" checked="checked">
+      <label class="radio-inline__label" for="layer1">レイヤー1</label>
+      <br>
+      <input id="layer2" class="layerbutton" type="radio" name="layer" value="2">
+      <label class="radio-inline__label" for="layer2">レイヤー2</label>
+
+    </div>
+    <div class="button">
+        <input id="clear"type="submit" value="Clear">
+        <input id="save" type="submit" value="Save">
+      <form class="form" method="post" action="end">
+        <input id="end" type="submit" value="End">
+      </form>
+    </div>
+  </div>
+  <div class="chatname">Chat</div>
+  <div class="chat">
+    <div class="chatbox">
+      <span id="statement">
+        User1が入室しました<br>
+        User2が入室しました<br>
+        User1:こんにちは<br>
+        User2:こんばんわ<br>
+      </span>
+    </div>
+    <div class="chatinput">
+      <input id="textbox" type="text" name="chatinput" size="20" maxlength="20">
+      <input id="send" type="button" value="Send">
+    </div>
+  </div>
+  <script type="text/javascript" src="main.js"></script>
+</body>
