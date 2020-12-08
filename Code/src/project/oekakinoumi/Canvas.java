@@ -39,7 +39,8 @@ public class Canvas {
   public void removeCanvas(){
     DrawComponent dc = new DrawComponent();
     dc.setToolType("clear");
-    addDrawComponent(dc);
     clearPoint = drawComponentList.size();
+    addDrawComponent(dc);
+
   }
 }
